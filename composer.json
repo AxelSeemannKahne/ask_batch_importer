@@ -1,0 +1,24 @@
+{
+  "name": "ask/ask_batch_importer",
+  "type": "typo3-cms-extension",
+  "description": "Batch import from Microsoft Business Central",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": "^8.2",
+    "typo3/cms-core": "^13.4",
+    "guzzlehttp/guzzle": "^7.5"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Ask\\AskBatchImporter\\": "Classes/"
+    }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "ask_batch_importer"
+    }
+  }
+}
