@@ -22,6 +22,9 @@ final class BatchProcessor
         private readonly LoggerInterface $logger,
     ) {}
 
+    /*
+     * @param string $runId
+     */
     public function process(string $runId, DatabaseWriter $writer, ProjectConfig $config): ProcessingResult
     {
         $this->mapper->setMapping($config->mapping);
@@ -46,15 +49,16 @@ final class BatchProcessor
                 $mapped[] = $this->mapper->map($record);
             }
 
-            $writer->persist($mapped);
+            $counts = $writer->persist($mapped);
 
             $this->batchRepository->markDone($runId, $batch['batch_number']);
-            $result->addProcessedBatch(count($mapped));
+            $result->addProcessedBatch($counts['inserted'], $counts['updated']);
 
             $this->logger->info('Batch processed', [
-                'run'     => $runId,
-                'batch'   => $batch['batch_number'],
-                'records' => count($mapped),
+                'run'      => $runId,
+                'batch'    => $batch['batch_number'],
+                'inserted' => $counts['inserted'],
+                'updated'  => $counts['updated'],
             ]);
         }
 

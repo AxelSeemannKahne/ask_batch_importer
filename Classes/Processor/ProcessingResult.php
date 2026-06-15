@@ -4,37 +4,31 @@ declare(strict_types=1);
 
 namespace Ask\AskBatchImporter\Processor;
 
-/**
- * Summary of a Phase 2 run, for CLI reporting.
- */
 final class ProcessingResult
 {
     private int $batches = 0;
-    private int $records = 0;
+    private int $inserted = 0;
+    private int $updated = 0;
 
-    /**
-     * @param int $recordCount
-     * @return void
-     */
-    public function addProcessedBatch(int $recordCount): void
+    public function addProcessedBatch(int $inserted, int $updated): void
     {
         $this->batches++;
-        $this->records += $recordCount;
+        $this->inserted += $inserted;
+        $this->updated += $updated;
     }
 
-    /**
-     * @return int
-     */
     public function getBatchCount(): int
     {
         return $this->batches;
     }
 
-    /*
-     * * @return int
-     */
-    public function getRecordCount(): int
+    public function getInsertedCount(): int
     {
-        return $this->records;
+        return $this->inserted;
+    }
+
+    public function getUpdatedCount(): int
+    {
+        return $this->updated;
     }
 }

@@ -72,10 +72,11 @@ final class ImportProductsCommand extends Command
 
         $io->success(
             sprintf(
-                'Done. run_id=%s  batches=%d  records=%d',
+                'Done. run_id=%s  batches=%d  inserted=%d  updated=%d',
                 $run->runId,
                 $result->getBatchCount(),
-                $result->getRecordCount(),
+                $result->getInsertedCount(),
+                $result->getUpdatedCount(),
             )
         );
 
