@@ -3,6 +3,13 @@
 Batch import of product data from pluggable sources into configurable targets.
 TYPO3 13.4 extension, CLI-driven, designed for large data volumes.
 
+
+---
+
+## Context
+A customer is transitioning to a new ERP system and provides product data for three different projects—two TYPO3 installations and one OXID eShop—based on a shared, identical dataset.
+The goal of this module is to provide a unified processing layer that can reliably distribute and transform this product data for all three target systems.
+
 ---
 
 ## Overview
