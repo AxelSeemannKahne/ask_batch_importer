@@ -1,6 +1,6 @@
 # ASK BATCH IMPORTER
 
-Batch import of product data from **Microsoft Business Central** into configurable targets.
+Batch import of product data from pluggable sources into configurable targets.
 TYPO3 13.4 extension, CLI-driven, designed for large data volumes.
 
 ---
@@ -15,8 +15,6 @@ and resumed after a failure.
 The import runs exclusively via CLI — no backend module.
 
 The concrete target is controlled via `--target` and its corresponding configuration file.
-The processing core has **no knowledge** of the target — writing is handled through an
-exchangeable writer layer (see Architecture).
 
 ---
 
@@ -24,8 +22,8 @@ exchangeable writer layer (see Architecture).
 
 ### Phase 1 — Fetch
 
-- Data is fetched in **batches of 500** via the BC OData API.
-- Each batch is stored raw in a **staging table**.
+- Data is fetched page by page via the BC OData API (server-driven paging).
+- Each page is stored raw as a batch in a **staging table**.
 - Progress is tracked in a **state table** (last fetched batch).
 - If a run is interrupted (timeout, network), the next start resumes from the last batch.
 
@@ -38,12 +36,7 @@ exchangeable writer layer (see Architecture).
 - Writes are **idempotent (upsert)**: records are matched on `external_id` (the BC
   `artnr`) — update if present, insert otherwise. Re-processing a partially written
   batch therefore produces **no duplicates**.
-- Writing is handled by the writer layer. On the direct-write path each batch runs in a
-  **DB transaction**; the batch is only flagged `done` after commit (atomic per batch).
-  The DataHandler path skips the explicit transaction — the upsert reconciles instead.
-- After a successful run, the staging data for that run is cleaned up.
-
-Phases can be run individually (`--phase=1` / `--phase=2`) or together (`--phase=all`).
+- Each batch runs in a **DB transaction**; the batch is only flagged `done` after commit (atomic per batch).
 
 ---
 
@@ -53,7 +46,7 @@ Phases can be run individually (`--phase=1` / `--phase=2`) or together (`--phase
 Command (--target=exampleproject --phase=all)
    │
    ├─ Phase 1 ──> BatchFetcher
-   │               ├─ BcApiClient            (OAuth, OData, batches of 500)
+   │               ├─ ProductSourceInterface (BC OData API or JSON files for testing)
    │               ├─ BatchRepository        (→ staging table)
    │               └─ ImportStateRepository  (resume point)
    │
@@ -61,16 +54,9 @@ Command (--target=exampleproject --phase=all)
                    ├─ BatchRepository         (read staging)
                    ├─ Validator               (required fields, types)
                    ├─ ProductDataMapper       (BC field → target field, config-driven)
-                   └─ WriterInterface         (no knowledge of concrete target)
-                        └─ Typo3DataHandlerWriter   (exampleproject)
-                           OxidWriter               (other project)
-```
+                   └─ DatabaseWriter          (upsert into configured table)
 
-Core idea: `BatchProcessor` only depends on `WriterInterface`. The concrete write target
-is resolved via dependency injection and `--target`. Table names like `tx_products` or
-`oxarticles` appear exclusively in the respective writer implementation — never in the
-processing core. New targets are added as additional writers without touching the processor
-(Strategy + DI).
+```
 
 ---
 
@@ -90,24 +76,24 @@ ask_batch_importer/
 │   │   └── ImportProductsCommand.php        # CLI entry: --target, --phase
 │   │
 │   ├── Fetcher/
-│   │   ├── ProductSourceInterface.php       # Method fetchItems()
+│   │   ├── ProductSourceInterface.php       # Interface: fetchPages()
 │   │   ├── BcApiClient.php                  # BC: OAuth, OData
-│   │   ├── JsonFileSource.php               # Test source: read batches from JSON files (tests, dev)
-│   │   └── BatchFetcher.php                 # Phase 1: fetch → staging, set state
+│   │   ├── JsonFileSource.php               # Test source: read from local JSON fixture
+│   │   ├── BatchFetcher.php                 # Phase 1: fetch → staging, set state
 │   │   └── Dto/
 │   │       ├── BcConnectionConfig.php   
 │   │       └── BcConnectionConfigProvider.php
 │   │
 │   ├── Processor/
 │   │   ├── BatchProcessor.php               # Phase 2: staging → map → write
-│   │   ├── ProcessingResult.php             # Phase 2: staging → map → write
+│   │   ├── ProcessingResult.php             # Counters for batches and records
 │   │   ├── ProductDataMapper.php            # BC field → target field (config-driven)
-│   │   └── Validator.php                    # required fields, types
+│   │   └── Validator.php                    # required fields
 │   │
 │   ├── Writer/
-│   │   ├── WriterInterface.php              # contract (e.g. persist(array $records))
-│   │   └── Typo3DataHandlerWriter.php       # DataHandler → tx_products
-│   │
+│   │   ├── DatabaseWriter.php               # Upsert into configured table
+│   │   └── WriterFactory.php                # Creates DatabaseWriter for a given config
+│   │        
 │   ├── State/
 │   │   ├── ImportRun.php                    # DTO: run-id, phase, status
 │   │   └── ImportStateRepository.php        # read/write state (resume)
@@ -146,7 +132,9 @@ Two lean custom tables without TCA (defined in `ext_tables.sql`):
 
 One file per target under `Configuration/Imports/`. It defines:
 
-- `writer` — which writer class to use
+- `connection` — TYPO3 database connection name
+- `table` — target database table
+- `upsertKey` — field used to match existing records (update vs. insert)
 - `pid` — TYPO3 page UID under which records are stored
 - `mapping` — field mapping BC→target, with optional type
 
@@ -162,61 +150,34 @@ no lookup mechanism needed, everything is scalar.
 
 ### Example: `exampleproject.yaml`
 
-The target `exampleproject` writes exclusively to `tx_products_domain_model_products`.
-All values — including FK integer fields — come directly from BC.
-
 ```yaml
-writer: Ask\AskBatchImporter\Writer\Typo3DataHandlerWriter
+connection: Default
+table: tx_products_domain_model_products
+upsertKey: artnr
 pid: 42
 
 mapping:
 
-  # --- Product master data ---
-  number:               { field: artnr }
-  displayName:          { field: title }
-  number2:              { field: modelnr }
-  itemCategoryCode:     { field: wg }
-  unitPrice:            { field: price }
-  unitPriceEur:         { field: price_eur }
-  priceRangeFrom:       { field: pricerange_from }
-  priceRangeFromEur:    { field: pricerange_from_eur }
-  ringWidth:            { field: ring_width }
-  stone:                { field: stone }
-  stone1:               { field: stone1 }
-  stone2:               { field: stone2 }
-  stone3:               { field: stone3 }
-  width:                { field: width }
-  family:               { field: family }
-  parentId:             { field: parent_id }
-  isParent:             { field: parent }
-  variants:             { field: variants }
-  variantsMediaNr:      { field: variants_media_nr }
-  partnerLevel:         { field: partnerlevel }
-  partnerId:            { field: partner_id }
-  partner2Id:           { field: partner2_id }
+  # target field:
+  #   source: BC field name
+  #   type: string | int | float | bool | static
+  #   required: true   (optional, validation in Phase 2)
 
-  # --- Multilingual fields ---
-  description:          { field: description }
-  descriptionEn:        { field: description_en }
-  descriptionFr:        { field: description_fr }
-  stoneDescription:     { field: stone_description }
-  stoneDescriptionEn:   { field: stone_description_en }
-  stoneDescriptionFr:   { field: stone_description_fr }
+  artnr:
+    source: number
+    type: string
+    required: true
 
-  # --- FK integer fields (UIDs delivered directly by BC) ---
-  colorUid:             { field: color }
-  surface1Uid:          { field: surface1 }
-  surfacePosition1Uid:  { field: surface_position1 }
-  surface2Uid:          { field: surface2 }
-  surfacePosition2Uid:  { field: surface_position2 }
-  surface3Uid:          { field: surface3 }
-  surfacePosition3Uid:  { field: surface_position3 }
-  categoryUid:          { field: category }
-  priceGroupUid:        { field: price_group }
+  title:
+    source: displayName
+    type: string
 
-  # --- Static defaults ---
-  _hidden:
-    field: hidden
+  price:
+    source: unitPrice
+    type: float
+
+  # static: fixed value, no BC source field
+  hidden:
     type: static
     value: 0
 ```
@@ -228,17 +189,7 @@ mapping:
 ## Usage (CLI)
 
 ```bash
-# Both phases in one run
-ddev typo3 ask:import:products --target=exampleproject --phase=all
-
-# Fetch only (Phase 1)
-ddev typo3 ask:import:products --target=exampleproject --phase=1
-
-# Process only (Phase 2, from existing staging data)
-ddev typo3 ask:import:products --target=exampleproject --phase=2
-
-# Reset run / start fresh
-ddev typo3 ask:import:products --target=exampleproject --force-restart
+ddev typo3 ask:import:products --target=exampleproject
 ```
 
 
