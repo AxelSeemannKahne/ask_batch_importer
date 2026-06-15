@@ -17,7 +17,7 @@ final class JsonFileSource implements ProductSourceInterface
         'EXT:ask_batch_importer/Resources/Private/Fixtures/test_items.json',
     ) {}
 
-    public function fetchPages(): \Generator
+    public function fetchPages(): array
     {
         $path = GeneralUtility::getFileAbsFileName($this->fixtureFile);
         $json = file_get_contents($path);
@@ -28,6 +28,6 @@ final class JsonFileSource implements ProductSourceInterface
 
         $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        yield $data['value'] ?? [];
+        return [$data['value'] ?? []];
     }
 }

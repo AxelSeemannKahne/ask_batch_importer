@@ -15,6 +15,11 @@ final readonly class ImportRun
         public int $created,
     ) {}
 
+    /**
+     * @param string $target
+     * @return self
+     * @throws \Random\RandomException
+     */
     public static function createNew(string $target): self
     {
         return new self(
@@ -28,7 +33,8 @@ final readonly class ImportRun
     }
 
     /**
-     * @param array<string, mixed> $row
+     * @param array $row
+     * @return self
      */
     public static function fromArray(array $row): self
     {

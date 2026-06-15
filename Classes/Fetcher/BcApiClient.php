@@ -55,9 +55,9 @@ final class BcApiClient implements ProductSourceInterface
         }
     }
 
-    public function fetchPages(): \Generator
+    public function fetchPages(): array
     {
-        yield iterator_to_array($this->fetchItems());
+        return [iterator_to_array($this->fetchItems(), false)];
     }
 
     /**
