@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Ask\AskBatchImporter\Command;
 
+use Ask\AskBatchImporter\Config\ProjectConfigLoader;
 use Ask\AskBatchImporter\Fetcher\BatchFetcher;
+use Ask\AskBatchImporter\Processor\BatchProcessor;
+use Ask\AskBatchImporter\State\ImportStateRepository;
+use Ask\AskBatchImporter\Writer\WriterFactory;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,32 +18,66 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'ask:import:products',
-    description: 'Imports product data from Microsoft Business Central.',
+    description: 'Imports product data from a configured source (e.g. Business Central) into a configured target.',
 )]
 final class ImportProductsCommand extends Command
 {
     public function __construct(
+        private readonly ProjectConfigLoader $configLoader,
+        private readonly WriterFactory $writerFactory,
         private readonly BatchFetcher $batchFetcher,
+        private readonly BatchProcessor $batchProcessor,
+        private readonly ImportStateRepository $stateRepository,
     ) {
         parent::__construct();
     }
 
+    /**
+     * @return void
+     */
     protected function configure(): void
     {
         $this->addOption('target', null, InputOption::VALUE_REQUIRED, 'Import target (e.g. exampleproject)');
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
         $target = (string)$input->getOption('target');
 
-        $io->writeln(sprintf('Fetching for target "%s"...', $target));
+        $config = $this->configLoader->load($target);
+        $writer = $this->writerFactory->createForConfig($config);
 
+        $io->writeln(sprintf('Phase 1: fetching "%s"...', $target));
         $run = $this->batchFetcher->fetch($target);
 
-        $io->success(sprintf('Done. run_id=%s, batches=%d', $run->runId, $run->lastBatch));
+        $io->writeln(
+            sprintf('Phase 2: processing run %s → %s.%s...', $run->runId, $config->connection, $config->table)
+        );
+
+        try {
+            $result = $this->batchProcessor->process($run->runId, $writer, $config);
+            $this->stateRepository->markProcessed($run->runId);
+        } catch (\Throwable $e) {
+            $this->stateRepository->markFailed($run->runId);
+            $io->error($e->getMessage());
+            return Command::FAILURE;
+        }
+
+        $io->success(
+            sprintf(
+                'Done. run_id=%s  batches=%d  records=%d',
+                $run->runId,
+                $result->getBatchCount(),
+                $result->getRecordCount(),
+            )
+        );
 
         return Command::SUCCESS;
     }
