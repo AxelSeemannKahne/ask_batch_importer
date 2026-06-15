@@ -21,6 +21,11 @@ final class ImportStateRepository
         private readonly ConnectionPool $connectionPool,
     ) {}
 
+    /**
+     * @param string $target
+     * @return ImportRun
+     * @throws \Random\RandomException
+     */
     public function createRun(string $target): ImportRun
     {
         $run = ImportRun::createNew($target);
@@ -37,6 +42,11 @@ final class ImportStateRepository
         return $run;
     }
 
+    /**
+     * @param string $runId
+     * @param int $batchNumber
+     * @return void
+     */
     public function updateLastBatch(string $runId, int $batchNumber): void
     {
         $this->connection()->update(
@@ -46,6 +56,10 @@ final class ImportStateRepository
         );
     }
 
+    /**
+     * @param string $runId
+     * @return void
+     */
     public function markFetched(string $runId): void
     {
         $this->connection()->update(
@@ -55,6 +69,35 @@ final class ImportStateRepository
         );
     }
 
+    /**
+     * @param string $runId
+     * @return void
+     */
+    public function markProcessed(string $runId): void
+    {
+        $this->connection()->update(
+            self::TABLE,
+            ['status' => 'processed'],
+            ['run_id' => $runId]
+        );
+    }
+
+    /**
+     * @param string $runId
+     * @return void
+     */
+    public function markFailed(string $runId): void
+    {
+        $this->connection()->update(
+            self::TABLE,
+            ['status' => 'failed'],
+            ['run_id' => $runId]
+        );
+    }
+
+    /**
+     * @return Connection
+     */
     private function connection(): Connection
     {
         return $this->connectionPool->getConnectionForTable(self::TABLE);
