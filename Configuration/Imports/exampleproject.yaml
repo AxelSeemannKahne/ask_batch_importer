@@ -1,4 +1,6 @@
-writer: Ask\AskBatchImporter\Writer\Typo3DataHandlerWriter
+connection: Default
+table: tx_products_domain_model_products
+upsertKey: artnr
 pid: 42
 batchSize: 10
 
@@ -165,3 +167,39 @@ mapping:
   hidden:
     type: static
     value: 0
+
+  image:
+    type: static
+    value: ''
+
+  media1:
+    type: static
+    value: ''
+
+  media2:
+    type: static
+    value: ''
+
+  media3:
+    type: static
+    value: ''
+
+  media4:
+    type: static
+    value: ''
+
+  media5:
+    type: static
+    value: ''
+
+  media6:
+    type: static
+    value: ''
+
+  crossselling:
+    type: static
+    value: ''
+
+  alternativeproducts:
+    type: static
+    value: ''
