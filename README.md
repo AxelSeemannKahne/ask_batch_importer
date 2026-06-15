@@ -81,7 +81,7 @@ ask_batch_importer/
 │
 ├── composer.json
 ├── ext_emconf.php
-├── ext_tables.sql                           # needed, because there wont`t be a TCA
+├── ext_tables.sql                           # needed, because there won`t be a TCA
 ├── README.md
 ├── .gitignore
 │
@@ -90,8 +90,11 @@ ask_batch_importer/
 │   │   └── ImportProductsCommand.php        # CLI entry: --target, --phase
 │   │
 │   ├── Fetcher/
-│   │   ├── BcApiClient.php                  # OAuth, OData, batches of 500
+│   │   ├── BcApiClient.php                  # OAuth, OData, batches of 500 
 │   │   └── BatchFetcher.php                 # Phase 1: fetch → staging, set state
+│   │   └── Dto/
+│   │       ├── BcConnectionConfig.php   
+│   │       └── BcConnectionConfigProvider.php
 │   │
 │   ├── Processor/
 │   │   ├── BatchProcessor.php               # Phase 2: staging → map → write
