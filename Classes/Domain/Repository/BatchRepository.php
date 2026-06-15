@@ -83,6 +83,12 @@ final class BatchRepository
         );
     }
 
+
+    public function truncateAll(): void
+    {
+        $this->connection()->truncate(self::TABLE);
+    }
+
     /**
      * @return Connection
      */

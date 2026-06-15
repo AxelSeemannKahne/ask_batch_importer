@@ -95,6 +95,11 @@ final class ImportStateRepository
         );
     }
 
+    public function truncateAll(): void
+    {
+        $this->connection()->truncate(self::TABLE);
+    }
+
     /**
      * @return Connection
      */
