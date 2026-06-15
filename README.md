@@ -90,7 +90,9 @@ ask_batch_importer/
 │   │   └── ImportProductsCommand.php        # CLI entry: --target, --phase
 │   │
 │   ├── Fetcher/
-│   │   ├── BcApiClient.php                  # OAuth, OData, batches of 500 
+│   │   ├── ProductSourceInterface.php       # Method fetchItems()
+│   │   ├── BcApiClient.php                  # BC: OAuth, OData
+│   │   ├── JsonFileSource.php               # Test source: read batches from JSON files (tests, dev)
 │   │   └── BatchFetcher.php                 # Phase 1: fetch → staging, set state
 │   │   └── Dto/
 │   │       ├── BcConnectionConfig.php   
@@ -98,6 +100,7 @@ ask_batch_importer/
 │   │
 │   ├── Processor/
 │   │   ├── BatchProcessor.php               # Phase 2: staging → map → write
+│   │   ├── ProcessingResult.php             # Phase 2: staging → map → write
 │   │   ├── ProductDataMapper.php            # BC field → target field (config-driven)
 │   │   └── Validator.php                    # required fields, types
 │   │

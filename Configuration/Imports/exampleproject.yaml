@@ -1,0 +1,167 @@
+writer: Ask\AskBatchImporter\Writer\Typo3DataHandlerWriter
+pid: 42
+batchSize: 10
+
+mapping:
+
+  artnr:
+    source: number
+    type: string
+    required: true
+
+  modelnr:
+    source: number2
+    type: string
+    required: true
+
+  wg:
+    source: itemCategoryCode
+    type: string
+    required: true
+
+  title:
+    source: displayName
+    type: string
+    required: true
+
+  width:
+    source: width
+    type: string
+    required: true
+
+  ring_width:
+    source: ringWidth
+    type: string
+    required: true
+
+  stone:
+    source: stone
+    type: string
+
+  stone1:
+    source: stone1
+    type: string
+
+  stone2:
+    source: stone2
+    type: string
+
+  stone3:
+    source: stone3
+    type: string
+
+  description:
+    source: description
+    type: string
+
+  description_en:
+    source: descriptionEn
+    type: string
+
+  description_fr:
+    source: descriptionFr
+    type: string
+
+  stone_description:
+    source: stoneDescription
+    type: string
+
+  stone_description_en:
+    source: stoneDescriptionEn
+    type: string
+
+  stone_description_fr:
+    source: stoneDescriptionFr
+    type: string
+
+  price:
+    source: unitPrice
+    type: float
+    required: true
+
+  price_eur:
+    source: unitPriceEur
+    type: float
+    required: true
+
+  pricerange_from:
+    source: priceRangeFrom
+    type: float
+
+  pricerange_from_eur:
+    source: priceRangeFromEur
+    type: float
+
+  variants:
+    source: variants
+    type: string
+
+  variants_media_nr:
+    source: variantsMediaNr
+    type: string
+
+  parent:
+    source: isParent
+    type: bool
+    required: true
+
+  parent_id:
+    source: parentId
+    type: string
+    required: true
+
+  partnerlevel:
+    source: partnerLevel
+    type: int
+
+  partner_id:
+    source: partnerId
+    type: string
+
+  partner2_id:
+    source: partner2Id
+    type: string
+
+  family:
+    source: family
+    type: string
+
+  color:
+    source: colorUid
+    type: int
+
+  surface1:
+    source: surface1Uid
+    type: int
+
+  surface_position1:
+    source: surfacePosition1Uid
+    type: int
+
+  surface2:
+    source: surface2Uid
+    type: int
+
+  surface_position2:
+    source: surfacePosition2Uid
+    type: int
+
+  surface3:
+    source: surface3Uid
+    type: int
+
+  surface_position3:
+    source: surfacePosition3Uid
+    type: int
+
+  category:
+    source: categoryUid
+    type: int
+
+  price_group:
+    source: priceGroupUid
+    type: int
+
+  hidden:
+    type: static
+    value: 0

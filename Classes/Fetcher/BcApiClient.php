@@ -55,6 +55,11 @@ final class BcApiClient implements ProductSourceInterface
         }
     }
 
+    public function fetchPages(): \Generator
+    {
+        yield iterator_to_array($this->fetchItems());
+    }
+
     /**
      * Performs an authenticated GET and returns the decoded JSON body.
      *

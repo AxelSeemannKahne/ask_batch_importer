@@ -6,12 +6,13 @@ services:
 
   Ask\AskBatchImporter\:
     resource: '../Classes/*'
+    exclude:
+      - '../Classes/Fetcher/Dto/*'
 
+  # Development: fixture-based source.
+  # Switch to BcApiClient once BC access is available.
   Ask\AskBatchImporter\Fetcher\ProductSourceInterface:
     # ProductSourceInterface: Local file for Testing
     alias: Ask\AskBatchImporter\Fetcher\JsonFileSource
     # ProductSourceInterface: Microsoft Business Central
     # alias: Ask\AskBatchImporter\Fetcher\BcApiClient
-
-  Ask\AskBatchImporter\Fetcher\Dto\BcConnectionConfig:
-    factory: [ '@Ask\AskBatchImporter\Fetcher\Dto\BcConnectionConfigProvider', 'create' ]

@@ -7,18 +7,17 @@ namespace Ask\AskBatchImporter\Fetcher;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Reads products from a local JSON file for Testing
- * Drop-in replacement for development / testing without API access.
+ * Reads products from a local JSON fixture.
+ * The entire fixture is delivered as a single page.
  */
 final class JsonFileSource implements ProductSourceInterface
 {
     public function __construct(
         private readonly string $fixtureFile =
-        'EXT:ask_batch_importer/Resources/Private/Fixtures/bc_items.json',
-    ) {
-    }
+        'EXT:ask_batch_importer/Resources/Private/Fixtures/test_items.json',
+    ) {}
 
-    public function fetchItems(?\DateTimeInterface $modifiedSince = null): \Generator
+    public function fetchPages(): \Generator
     {
         $path = GeneralUtility::getFileAbsFileName($this->fixtureFile);
         $json = file_get_contents($path);
@@ -29,9 +28,6 @@ final class JsonFileSource implements ProductSourceInterface
 
         $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        // same shape BC delivers: records live under "value"
-        foreach ($data['value'] ?? [] as $record) {
-            yield $record;
-        }
+        yield $data['value'] ?? [];
     }
 }

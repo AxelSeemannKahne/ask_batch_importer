@@ -14,7 +14,7 @@ final class BcConnectionConfigProvider
     }
 
     /**
-     * Data Transfer Object for BC connection configuration
+     * DTO for BC connection configuration
      *
      * @return BcConnectionConfig
      * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException
