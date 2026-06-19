@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Ask\AskBatchImporter\Command;
 
 use Ask\AskBatchImporter\Domain\Repository\BatchRepository;
-use Ask\AskBatchImporter\State\ImportStateRepository;
+use Ask\AskBatchImporter\Domain\Repository\ImportStateRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

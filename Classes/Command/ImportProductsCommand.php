@@ -7,7 +7,7 @@ namespace Ask\AskBatchImporter\Command;
 use Ask\AskBatchImporter\Config\ProjectConfigLoader;
 use Ask\AskBatchImporter\Fetcher\BatchFetcher;
 use Ask\AskBatchImporter\Processor\BatchProcessor;
-use Ask\AskBatchImporter\State\ImportStateRepository;
+use Ask\AskBatchImporter\Domain\Repository\ImportStateRepository;
 use Ask\AskBatchImporter\Writer\WriterFactory;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

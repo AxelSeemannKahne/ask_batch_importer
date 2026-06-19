@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Ask\AskBatchImporter\State;
+namespace Ask\AskBatchImporter\Domain\Repository;
 
+use Ask\AskBatchImporter\State\ImportRun;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 

@@ -6,7 +6,7 @@ namespace Ask\AskBatchImporter\Fetcher;
 
 use Ask\AskBatchImporter\Domain\Repository\BatchRepository;
 use Ask\AskBatchImporter\State\ImportRun;
-use Ask\AskBatchImporter\State\ImportStateRepository;
+use Ask\AskBatchImporter\Domain\Repository\ImportStateRepository;
 
 /**
  * Phase 1: pulls pages from the source and stores each page
