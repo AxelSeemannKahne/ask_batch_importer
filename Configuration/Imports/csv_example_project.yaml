@@ -1,3 +1,9 @@
+fetcher:
+  type: csv
+  file: 'EXT:ask_batch_importer/Resources/Private/Fixtures/test_items.csv'
+  chunkSize: 10
+  delimiter: ';'
+
 writer: typo3
 connection: Default
 table: tx_products_domain_model_products
@@ -8,162 +14,134 @@ batchSize: 10
 mapping:
 
   artnr:
-    source: number
+    source: ID
     type: string
     required: true
 
   modelnr:
-    source: number2
+    source: Artikel
     type: string
     required: true
 
   wg:
-    source: itemCategoryCode
+    source: WG
     type: string
     required: true
 
   title:
-    source: displayName
+    source: BezeichnungD
     type: string
     required: true
 
   width:
-    source: width
+    source: Breite
     type: string
     required: true
 
   ring_width:
-    source: ringWidth
+    source: RingWeite
     type: string
     required: true
 
   stone:
-    source: stone
+    source: SteinArt1
     type: string
 
   stone1:
-    source: stone1
+    source: SteinFarbe1
     type: string
 
   stone2:
-    source: stone2
+    source: SteinReinheit1
     type: string
 
   stone3:
-    source: stone3
+    source: SteinArt2
     type: string
 
   description:
-    source: description
+    source: AdsPrdTextD
     type: string
 
   description_en:
-    source: descriptionEn
+    source: AdsPrdTextE
     type: string
 
   description_fr:
-    source: descriptionFr
+    source: AdsPrdTextF
     type: string
 
   stone_description:
-    source: stoneDescription
+    source: BeschrD
     type: string
 
   stone_description_en:
-    source: stoneDescriptionEn
+    source: BeschrE
     type: string
 
   stone_description_fr:
-    source: stoneDescriptionFr
+    source: BeschrF
     type: string
 
   price:
-    source: unitPrice
+    source: AUKurs1
     type: float
     required: true
 
   price_eur:
-    source: unitPriceEur
+    source: PTKurs1
     type: float
     required: true
 
   pricerange_from:
-    source: priceRangeFrom
-    type: float
-
-  pricerange_from_eur:
-    source: priceRangeFromEur
+    source: Preis1
     type: float
 
   variants:
-    source: variants
-    type: string
-
-  variants_media_nr:
-    source: variantsMediaNr
+    source: Variante
     type: string
 
   parent:
-    source: isParent
+    source: Mutter
     type: bool
     required: true
 
   parent_id:
-    source: parentId
+    source: MutterID
     type: string
     required: true
 
-  partnerlevel:
-    source: partnerLevel
-    type: int
-
   partner_id:
-    source: partnerId
+    source: PartnerID
     type: string
 
   partner2_id:
-    source: partner2Id
+    source: Partner2ID
     type: string
 
   family:
-    source: family
+    source: Familie
     type: string
 
   color:
-    source: colorUid
-    type: int
+    source: Farbe1
+    type: string
 
   surface1:
-    source: surface1Uid
-    type: int
-
-  surface_position1:
-    source: surfacePosition1Uid
-    type: int
+    source: Ober1T1
+    type: string
 
   surface2:
-    source: surface2Uid
-    type: int
-
-  surface_position2:
-    source: surfacePosition2Uid
-    type: int
+    source: Ober1T2
+    type: string
 
   surface3:
-    source: surface3Uid
-    type: int
-
-  surface_position3:
-    source: surfacePosition3Uid
-    type: int
-
-  category:
-    source: categoryUid
-    type: int
+    source: Ober1T3
+    type: string
 
   price_group:
-    source: priceGroupUid
-    type: int
+    source: Preisgruppe
+    type: string
 
   hidden:
     type: static

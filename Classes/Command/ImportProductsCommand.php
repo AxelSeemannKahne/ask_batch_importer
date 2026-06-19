@@ -18,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'ask:import:products',
-    description: 'Imports product data from a configured source (e.g. Business Central) into a configured target.',
+    description: 'Imports product data from a pluggable source (e.g. Business Central) into a pluggable target.',
 )]
 final class ImportProductsCommand extends Command
 {
@@ -54,8 +54,8 @@ final class ImportProductsCommand extends Command
         $config = $this->configLoader->load($target);
         $writer = $this->writerFactory->createForConfig($config);
 
-        $io->writeln(sprintf('Phase 1: fetching "%s"...', $target));
-        $run = $this->batchFetcher->fetch($target);
+        $io->writeln(sprintf('Phase 1: fetching "%s" via %s...', $target, $config->source));
+        $run = $this->batchFetcher->fetch($target, $config);
 
         $io->writeln(
             sprintf('Phase 2: processing run %s → %s.%s...', $run->runId, $config->connection, $config->table)

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ask\AskBatchImporter\Fetcher;
 
+use Ask\AskBatchImporter\Config\ProjectConfig;
 use Ask\AskBatchImporter\Domain\Repository\BatchRepository;
 use Ask\AskBatchImporter\State\ImportRun;
 use Ask\AskBatchImporter\Domain\Repository\ImportStateRepository;
@@ -15,18 +16,19 @@ use Ask\AskBatchImporter\Domain\Repository\ImportStateRepository;
 final class BatchFetcher
 {
     public function __construct(
-        private readonly ProductSourceInterface $source,
+        private readonly SourceFactory $sourceFactory,
         private readonly BatchRepository $batchRepository,
         private readonly ImportStateRepository $stateRepository,
     ) {}
 
-    public function fetch(string $target): ImportRun
+    public function fetch(string $target, ProjectConfig $config): ImportRun
     {
+        $source = $this->sourceFactory->createForConfig($config);
         $run = $this->stateRepository->createRun($target);
 
         $batchNumber = 0;
 
-        foreach ($this->source->fetchPages() as $page) {
+        foreach ($source->fetchPages() as $page) {
             $batchNumber++;
             $this->batchRepository->store($run->runId, $batchNumber, $page);
             $this->stateRepository->updateLastBatch($run->runId, $batchNumber);

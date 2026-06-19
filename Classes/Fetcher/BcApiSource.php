@@ -5,59 +5,45 @@ declare(strict_types=1);
 
 namespace Ask\AskBatchImporter\Fetcher;
 
-use Ask\AskBatchImporter\Fetcher\Dto\BcConnectionConfig;
+use Ask\AskBatchImporter\Fetcher\Dto\BcConnectionConfigProvider;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
 /**
- * Thin client for Microsoft Business Central.
+ * Fetches product data from Microsoft Business Central via OData API.
  *
- * Handles OAuth2 (client credentials) against Azure AD and reads items
- * from the BC OData API, following server-driven paging (@odata.nextLink).
+ * Handles OAuth2 (client credentials) against Azure AD and follows
+ * server-driven paging (@odata.nextLink). Each API page becomes one staging batch.
  */
-final class BcApiClient implements ProductSourceInterface
+final class BcApiSource implements ProductSourceInterface
 {
     private ?string $accessToken = null;
     private int $tokenExpiresAt = 0;
+    private ?\Ask\AskBatchImporter\Fetcher\Dto\BcConnectionConfig $config = null;
+
+    private function config(): \Ask\AskBatchImporter\Fetcher\Dto\BcConnectionConfig
+    {
+        return $this->config ??= $this->configProvider->create();
+    }
 
     public function __construct(
         private readonly ClientInterface $httpClient,
         private readonly RequestFactoryInterface $requestFactory,
         private readonly StreamFactoryInterface $streamFactory,
-        private readonly BcConnectionConfig $config,
+        private readonly BcConnectionConfigProvider $configProvider,
     ) {
     }
 
-    /**
-     * Yields every item from BC, one record at a time.
-     *
-     * Paging is handled internally: the client follows @odata.nextLink until
-     * BC stops returning one. The caller (BatchFetcher) is responsible for
-     * chunking the stream into 500-record staging batches.
-     *
-     * @param \DateTimeInterface|null $modifiedSince optional delta filter
-     * @return \Generator<int, array<string, mixed>>
-     */
-    public function fetchItems(?\DateTimeInterface $modifiedSince = null): \Generator
+    public function fetchPages(): iterable
     {
-        $url = $this->buildItemsUrl($modifiedSince);
+        $url = $this->buildItemsUrl();
 
         while ($url !== null) {
             $page = $this->getJson($url);
-
-            foreach ($page['value'] ?? [] as $record) {
-                yield $record;
-            }
-
-            // server-driven paging: BC tells us where the next page lives
+            yield $page['value'] ?? [];
             $url = $page['@odata.nextLink'] ?? null;
         }
-    }
-
-    public function fetchPages(): array
-    {
-        return [iterator_to_array($this->fetchItems(), false)];
     }
 
     /**
@@ -95,8 +81,8 @@ final class BcApiClient implements ProductSourceInterface
 
         $body = http_build_query([
             'grant_type'    => 'client_credentials',
-            'client_id'     => $this->config->clientId,
-            'client_secret' => $this->config->clientSecret,
+            'client_id'     => $this->config()->clientId,
+            'client_secret' => $this->config()->clientSecret,
             'scope'         => 'https://api.businesscentral.dynamics.com/.default',
         ]);
 
@@ -127,24 +113,17 @@ final class BcApiClient implements ProductSourceInterface
     {
         return sprintf(
             'https://login.microsoftonline.com/%s/oauth2/v2.0/token',
-            $this->config->tenantId
+            $this->config()->tenantId
         );
     }
 
-    private function buildItemsUrl(?\DateTimeInterface $modifiedSince): string
+    private function buildItemsUrl(): string
     {
-        $url = sprintf(
+        return sprintf(
             'https://api.businesscentral.dynamics.com/v2.0/%s/%s/api/v2.0/companies(%s)/items',
-            $this->config->tenantId,
-            $this->config->environment,
-            $this->config->companyId
+            $this->config()->tenantId,
+            $this->config()->environment,
+            $this->config()->companyId
         );
-
-        if ($modifiedSince !== null) {
-            $url .= '?$filter=lastModifiedDateTime gt '
-                . $modifiedSince->format('Y-m-d\TH:i:s\Z');
-        }
-
-        return $url;
     }
 }

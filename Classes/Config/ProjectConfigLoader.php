@@ -26,6 +26,10 @@ final class ProjectConfigLoader
         $raw = Yaml::parseFile($path);
 
         return new ProjectConfig(
+            fetcher: array_merge(
+                ['type' => 'json', 'file' => '', 'chunkSize' => 500, 'delimiter' => ','],
+                $raw['fetcher'] ?? [],
+            ),
             writer: $raw['writer'] ?? 'typo3',
             connection: $raw['connection'] ?? 'Default',
             table: $raw['table'] ?? '',

@@ -7,15 +7,9 @@ services:
   Ask\AskBatchImporter\:
     resource: '../Classes/*'
     exclude:
-      - '../Classes/Fetcher/Dto/*'
+      - '../Classes/Fetcher/Dto/BcConnectionConfig.php'
       - '../Classes/Config/ProjectConfig.php'
       - '../Classes/Writer/Typo3Writer.php'
       - '../Classes/Writer/OxidWriter.php'
-
-  # Development: fixture-based source.
-  # Switch to BcApiClient once BC access is available.
-  Ask\AskBatchImporter\Fetcher\ProductSourceInterface:
-    # ProductSourceInterface: Local file for Testing
-    alias: Ask\AskBatchImporter\Fetcher\JsonFileSource
-    # ProductSourceInterface: Microsoft Business Central
-    # alias: Ask\AskBatchImporter\Fetcher\BcApiClient
+      - '../Classes/Fetcher/JsonFileSource.php'
+      - '../Classes/Fetcher/CsvFileSource.php'
