@@ -13,7 +13,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 final class CsvFileSource implements ProductSourceInterface
 {
     public function __construct(
-        private readonly string $csvFile,
+        private readonly string $file,
         private readonly int $chunkSize = 500,
         private readonly string $delimiter = ',',
     ) {}
@@ -21,7 +21,7 @@ final class CsvFileSource implements ProductSourceInterface
     public static function fromConfig(array $config): static
     {
         return new static(
-            csvFile: $config['file'],
+            file: $config['file'],
             chunkSize: (int)$config['chunkSize'],
             delimiter: $config['delimiter'],
         );
@@ -29,7 +29,7 @@ final class CsvFileSource implements ProductSourceInterface
 
     public function fetchPages(): iterable
     {
-        $path = GeneralUtility::getFileAbsFileName($this->csvFile);
+        $path = GeneralUtility::getFileAbsFileName($this->file);
         $handle = fopen($path, 'r');
 
         if ($handle === false) {

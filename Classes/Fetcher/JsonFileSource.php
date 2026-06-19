@@ -13,7 +13,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 final class JsonFileSource implements ProductSourceInterface
 {
     public function __construct(
-        private readonly string $fixtureFile =
+        private readonly string $file =
         'EXT:ask_batch_importer/Resources/Private/Fixtures/test_items.json',
         private readonly int $chunkSize = 10,
     ) {}
@@ -21,14 +21,14 @@ final class JsonFileSource implements ProductSourceInterface
     public static function fromConfig(array $config): static
     {
         return new static(
-            fixtureFile: $config['file'],
+            file: $config['file'],
             chunkSize: (int)$config['chunkSize'],
         );
     }
 
     public function fetchPages(): iterable
     {
-        $path = GeneralUtility::getFileAbsFileName($this->fixtureFile);
+        $path = GeneralUtility::getFileAbsFileName($this->file);
         $json = file_get_contents($path);
 
         if ($json === false) {
