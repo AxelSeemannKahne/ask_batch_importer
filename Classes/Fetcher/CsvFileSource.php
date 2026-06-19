@@ -18,6 +18,15 @@ final class CsvFileSource implements ProductSourceInterface
         private readonly string $delimiter = ',',
     ) {}
 
+    public static function fromConfig(array $config): static
+    {
+        return new static(
+            csvFile: $config['file'],
+            chunkSize: (int)$config['chunkSize'],
+            delimiter: $config['delimiter'],
+        );
+    }
+
     public function fetchPages(): iterable
     {
         $path = GeneralUtility::getFileAbsFileName($this->csvFile);

@@ -18,6 +18,14 @@ final class JsonFileSource implements ProductSourceInterface
         private readonly int $chunkSize = 10,
     ) {}
 
+    public static function fromConfig(array $config): static
+    {
+        return new static(
+            fixtureFile: $config['file'],
+            chunkSize: (int)$config['chunkSize'],
+        );
+    }
+
     public function fetchPages(): iterable
     {
         $path = GeneralUtility::getFileAbsFileName($this->fixtureFile);

@@ -9,6 +9,7 @@ use Ask\AskBatchImporter\Fetcher\Dto\BcConnectionConfigProvider;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Fetches product data from Microsoft Business Central via OData API.
@@ -32,7 +33,11 @@ final class BcApiSource implements ProductSourceInterface
         private readonly RequestFactoryInterface $requestFactory,
         private readonly StreamFactoryInterface $streamFactory,
         private readonly BcConnectionConfigProvider $configProvider,
-    ) {
+    ) {}
+
+    public static function fromConfig(array $config): static
+    {
+        return GeneralUtility::makeInstance(static::class);
     }
 
     public function fetchPages(): iterable
