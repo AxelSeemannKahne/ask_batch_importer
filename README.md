@@ -195,21 +195,26 @@ mapping:
 
 ---
 
-## Usage (CLI)
-
-```bash
-ddev typo3 ask:import:products --target=exampleproject
-```
-
+## Installation
 
 ```bash
 ddev composer require ask/ask_batch_importer:dev-main
 ```
 
-The folder is excluded in the project's `.gitignore` so the extension keeps its own repository:
+---
 
+## Usage (CLI)
+
+Run a full import (fetch + process) for the given target:
+
+```bash
+ddev typo3 ask:import:products --target=exampleproject
 ```
-/packages/ask_batch_importer/
+
+Flush all staged batches and run records (clean slate for testing):
+
+```bash
+ddev typo3 ask:import:flush
 ```
 
 ---
