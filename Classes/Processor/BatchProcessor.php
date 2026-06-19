@@ -6,7 +6,7 @@ namespace Ask\AskBatchImporter\Processor;
 
 use Ask\AskBatchImporter\Config\ProjectConfig;
 use Ask\AskBatchImporter\Domain\Repository\BatchRepository;
-use Ask\AskBatchImporter\Writer\DatabaseWriter;
+use Ask\AskBatchImporter\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -25,7 +25,7 @@ final class BatchProcessor
     /*
      * @param string $runId
      */
-    public function process(string $runId, DatabaseWriter $writer, ProjectConfig $config): ProcessingResult
+    public function process(string $runId, WriterInterface $writer, ProjectConfig $config): ProcessingResult
     {
         $this->mapper->setMapping($config->mapping);
 
