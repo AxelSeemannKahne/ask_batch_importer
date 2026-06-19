@@ -15,9 +15,10 @@ final class JsonFileSource implements ProductSourceInterface
     public function __construct(
         private readonly string $fixtureFile =
         'EXT:ask_batch_importer/Resources/Private/Fixtures/test_items.json',
+        private readonly int $chunkSize = 10,
     ) {}
 
-    public function fetchPages(): array
+    public function fetchPages(): iterable
     {
         $path = GeneralUtility::getFileAbsFileName($this->fixtureFile);
         $json = file_get_contents($path);
@@ -28,6 +29,8 @@ final class JsonFileSource implements ProductSourceInterface
 
         $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        return [$data['value'] ?? []];
+        foreach (array_chunk($data['value'] ?? [], $this->chunkSize) as $chunk) {
+            yield $chunk;
+        }
     }
 }

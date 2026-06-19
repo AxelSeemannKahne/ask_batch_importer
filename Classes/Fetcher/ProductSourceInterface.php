@@ -6,5 +6,5 @@ namespace Ask\AskBatchImporter\Fetcher;
 
 interface ProductSourceInterface
 {
-    public function fetchPages(): array;
+    public function fetchPages(): iterable;
 }
