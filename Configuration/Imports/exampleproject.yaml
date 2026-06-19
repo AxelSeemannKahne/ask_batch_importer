@@ -1,3 +1,4 @@
+writer: typo3
 connection: Default
 table: tx_products_domain_model_products
 upsertKey: artnr

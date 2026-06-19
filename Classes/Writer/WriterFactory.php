@@ -13,12 +13,11 @@ final class WriterFactory
         private readonly ConnectionPool $connectionPool,
     ) {}
 
-    /**
-     * @param ProjectConfig $config
-     * @return DatabaseWriter
-     */
-    public function createForConfig(ProjectConfig $config): DatabaseWriter
+    public function createForConfig(ProjectConfig $config): WriterInterface
     {
-        return new DatabaseWriter($this->connectionPool, $config);
+        return match ($config->writer) {
+            'oxid' => new OxidWriter(),
+            default => new Typo3Writer($this->connectionPool, $config),
+        };
     }
 }

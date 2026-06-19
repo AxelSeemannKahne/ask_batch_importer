@@ -7,6 +7,7 @@ namespace Ask\AskBatchImporter\Config;
 final readonly class ProjectConfig
 {
     public function __construct(
+        public string $writer,
         public string $connection,
         public string $table,
         public string $upsertKey,

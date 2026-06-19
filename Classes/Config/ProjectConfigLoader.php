@@ -26,6 +26,7 @@ final class ProjectConfigLoader
         $raw = Yaml::parseFile($path);
 
         return new ProjectConfig(
+            writer: $raw['writer'] ?? 'typo3',
             connection: $raw['connection'] ?? 'Default',
             table: $raw['table'] ?? '',
             upsertKey: $raw['upsertKey'] ?? '',

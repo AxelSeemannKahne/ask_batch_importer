@@ -9,7 +9,8 @@ services:
     exclude:
       - '../Classes/Fetcher/Dto/*'
       - '../Classes/Config/ProjectConfig.php'
-      - '../Classes/Writer/DatabaseWriter.php'
+      - '../Classes/Writer/Typo3Writer.php'
+      - '../Classes/Writer/OxidWriter.php'
 
   # Development: fixture-based source.
   # Switch to BcApiClient once BC access is available.

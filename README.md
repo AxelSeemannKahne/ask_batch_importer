@@ -1,6 +1,6 @@
 # ASK BATCH IMPORTER
 
-Batch import of product data from pluggable sources into configurable targets.
+Batch import of product data from pluggable sources into pluggable targets.
 TYPO3 13.4 extension, CLI-driven, designed for large data volumes.
 
 
@@ -61,7 +61,7 @@ Command (--target=exampleproject --phase=all)
                    ├─ BatchRepository         (read staging)
                    ├─ Validator               (required fields, types)
                    ├─ ProductDataMapper       (BC field → target field, config-driven)
-                   └─ DatabaseWriter          (upsert into configured table)
+                   └─ WriterInterface         (switchable DB writer)
 
 ```
 
@@ -98,8 +98,10 @@ ask_batch_importer/
 │   │   └── Validator.php                    # required fields
 │   │
 │   ├── Writer/
-│   │   ├── DatabaseWriter.php               # Upsert into configured table
-│   │   └── WriterFactory.php                # Creates DatabaseWriter for a given config
+│   │   ├── WriterInterface.php              # Interface for writing records
+│   │   ├── OxidWriter.php                   # Implementation for OXID
+│   │   ├── Typo3Writer.php                  # Implementation for TYPO3 DB
+│   │   └── WriterFactory.php                # Factory to create writer based on target config
 │   │        
 │   ├── State/
 │   │   ├── ImportRun.php                    # DTO: run-id, phase, status
