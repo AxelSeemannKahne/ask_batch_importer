@@ -54,11 +54,11 @@ final class ImportProductsCommand extends Command
         $config = $this->configLoader->load($target);
         $writer = $this->writerFactory->createForConfig($config);
 
-        $io->writeln(sprintf('Phase 1: fetching "%s" via %s...', $target, $config->source));
+        $io->writeln(sprintf('Phase 1: fetching "%s" via %s...', $target, $config->fetcher['type']));
         $run = $this->batchFetcher->fetch($target, $config);
 
         $io->writeln(
-            sprintf('Phase 2: processing run %s → %s.%s...', $run->runId, $config->connection, $config->table)
+            sprintf('Phase 2: processing run %s → %s → %s...', $run->runId, $config->writer['type'], $config->writer['table'])
         );
 
         try {
