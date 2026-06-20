@@ -4,15 +4,29 @@ declare(strict_types=1);
 
 namespace Ask\AskBatchImporter\Writer;
 
-use Ask\AskBatchImporter\Config\ProjectConfig;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class Typo3Writer implements WriterInterface
 {
     public function __construct(
         private readonly ConnectionPool $connectionPool,
-        private readonly ProjectConfig $config,
+        private readonly string $connection,
+        private readonly string $table,
+        private readonly string $upsertKey,
+        private readonly int $pid,
     ) {}
+
+    public static function fromConfig(array $config): static
+    {
+        return new static(
+            connectionPool: GeneralUtility::makeInstance(ConnectionPool::class),
+            connection: $config['connection'],
+            table: $config['table'],
+            upsertKey: $config['upsertKey'],
+            pid: (int)$config['pid'],
+        );
+    }
 
     /** @return array{inserted: int, updated: int} */
     public function persist(array $records): array
@@ -24,29 +38,29 @@ final class Typo3Writer implements WriterInterface
             return ['inserted' => $inserted, 'updated' => $updated];
         }
 
-        $connection = $this->connectionPool->getConnectionByName($this->config->connection);
+        $connection = $this->connectionPool->getConnectionByName($this->connection);
         $connection->beginTransaction();
 
         try {
             foreach ($records as $record) {
-                $upsertValue = $record[$this->config->upsertKey] ?? null;
+                $upsertValue = $record[$this->upsertKey] ?? null;
 
                 if (
                     $upsertValue !== null
-                    && $connection->count('*', $this->config->table, [$this->config->upsertKey => $upsertValue]) > 0
+                    && $connection->count('*', $this->table, [$this->upsertKey => $upsertValue]) > 0
                 ) {
                     $connection->update(
-                        $this->config->table,
+                        $this->table,
                         $record,
-                        [$this->config->upsertKey => $upsertValue]
+                        [$this->upsertKey => $upsertValue]
                     );
                     $updated++;
                 } else {
-                    $row = $this->config->pid > 0
-                        ? array_merge($record, ['pid' => $this->config->pid])
+                    $row = $this->pid > 0
+                        ? array_merge($record, ['pid' => $this->pid])
                         : $record;
 
-                    $connection->insert($this->config->table, $row);
+                    $connection->insert($this->table, $row);
                     $inserted++;
                 }
             }

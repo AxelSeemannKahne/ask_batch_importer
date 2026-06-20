@@ -30,11 +30,10 @@ final class ProjectConfigLoader
                 ['type' => 'json', 'file' => '', 'chunkSize' => 500, 'delimiter' => ','],
                 $raw['fetcher'] ?? [],
             ),
-            writer: $raw['writer'] ?? 'typo3',
-            connection: $raw['connection'] ?? 'Default',
-            table: $raw['table'] ?? '',
-            upsertKey: $raw['upsertKey'] ?? '',
-            pid: (int)($raw['pid'] ?? 0),
+            writer: array_merge(
+                ['type' => 'Ask\AskBatchImporter\Writer\Typo3Writer', 'connection' => 'Default', 'table' => '', 'upsertKey' => '', 'pid' => 0],
+                $raw['writer'] ?? [],
+            ),
             mapping: $raw['mapping'] ?? [],
         );
     }

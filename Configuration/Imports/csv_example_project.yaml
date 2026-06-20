@@ -4,12 +4,13 @@ fetcher:
   chunkSize: 10
   delimiter: ';'
 
-writer: typo3
-connection: Default
-table: tx_products_domain_model_products
-upsertKey: artnr
-pid: 42
-batchSize: 10
+writer:
+  type: Ask\AskBatchImporter\Writer\Typo3Writer
+  connection: Default
+  table: tx_products_domain_model_products
+  upsertKey: artnr
+  pid: 42
+
 
 mapping:
 
