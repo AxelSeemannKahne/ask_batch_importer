@@ -101,7 +101,7 @@ ask_batch_importer/
 │   │
 │   ├── Writer/
 │   │   ├── WriterInterface.php              # Interface: persist(array $records): array
-│   │   ├── WriterFactory.php                # creates writer based on writer key
+│   │   ├── WriterFactory.php                # creates writer based on writer.type (FQCN)
 │   │   ├── Typo3Writer.php                  # upsert into TYPO3 DB (ConnectionPool)
 │   │   └── OxidWriter.php                   # (not yet implemented)
 │   │
@@ -150,17 +150,17 @@ One file per target under `Configuration/Imports/`. It defines the source, write
 
 ```yaml
 fetcher:
-  type: csv                  # csv | json | bc
+  type: Ask\AskBatchImporter\Fetcher\CsvFileSource
   file: 'EXT:.../products.csv'
   chunkSize: 500
   delimiter: ';'
 
-writer: typo3                # typo3 | oxid
-
-connection: Default
-table: tx_products_domain_model_products
-upsertKey: artnr
-pid: 42
+writer:
+  type: Ask\AskBatchImporter\Writer\Typo3Writer
+  connection: Default
+  table: tx_products_domain_model_products
+  upsertKey: artnr
+  pid: 42
 
 mapping:
 
