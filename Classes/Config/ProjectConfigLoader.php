@@ -31,7 +31,7 @@ final class ProjectConfigLoader
                 $raw['fetcher'] ?? [],
             ),
             writer: array_merge(
-                ['type' => 'Ask\AskBatchImporter\Writer\Typo3Writer', 'connection' => 'Default', 'table' => '', 'upsertKey' => '', 'pid' => 0],
+                ['connection' => 'Default', 'pid' => 0],
                 $raw['writer'] ?? [],
             ),
             mapping: $raw['mapping'] ?? [],
